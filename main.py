@@ -1,7 +1,7 @@
 # pip3 install neo4j-driver
 # python3 example.py
 import os
-
+from neo4j import GraphDatabase
 class CUSTOMER:
     def __init__(self, cId, Cname, Street, City, StateAb, Zipcode):
         self.cId = cId
@@ -45,13 +45,13 @@ class STORE:
         self.URL = URL
 
 class ORDERS:
-    def __init__(self, oId, sId, Odate, Ddate, Amount, cId):
+    def __init__(self, oId, sId, cId, Odate, Ddate, Amount):
         self.oId = oId
         self.sId = sId
+        self.cId = cId
         self.Odate = Odate
         self.Ddate = Ddate
         self.Amount = Amount
-        self.cId = cId
 
 #class ORDER_ITEM:
     #def __init__(self, oId, sId, iId, Icount):
@@ -113,6 +113,7 @@ VENDOR_list = []
 VENDOR_ITEM_list = []
 
 def read_CONTRACT(data):
+
     for line in data:
         line = line.rstrip()
         lineSplit = line.split(",")
@@ -185,6 +186,125 @@ def read_VENDOR_ITEM(data):
         readVENDOR_ITEM = VENDOR_ITEM(lineSplit[0], lineSplit[1], lineSplit[2])
         VENDOR_ITEM_list.append(readVENDOR_ITEM)
 
+def create_contract(greeter):
+    counter = 0
+    for contract in CONTRACT_list:
+        if(counter != 0):
+            #print(item.vId, item.ctId, item.Sdate, item.Ctime, item.Cname)
+            query = ("CREATE (n:Contract {vId: " + contract.vId + ", ctID: " + contract.ctId + ", Sdate: '" + contract.Sdate +
+                     "', Ctime: '" + contract.Ctime + "', Cname: '" + contract.Cname + "'})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Contracts done!")
+def create_customer(greeter):
+    counter = 0
+    for customer in CUSTOMER_list:
+        if(counter != 0):
+            query = ("CREATE (n:Customer {cId: " + customer.cId + ", Cname: '" + customer.Cname + "', Street: '"
+                     + customer.Street + "', City: '" + customer.City + "', StateAb: '" + customer.StateAb +
+                     "', Zipcode: '" + customer.Zipcode + "'})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Customer done!")
+
+def create_employee(greeter):
+    counter = 0
+    for employee in EMPLOYEE_list:
+        if(counter != 0):
+            query = ("CREATE (n:Employee {sId: " + employee.sId + ", SSN: " + employee.SSN + ", Ename: '"
+                     + employee.Ename + "', Street: '" + employee.Street + "', City: '" + employee.City +
+                     "', StateAb: '" + employee.StateAb + "', Zipcode: '" + employee.Zipcode + "', Etype: '" +
+                     employee.Etype + "', Bdate: '" + employee.Bdate + "', Sdate: '" + employee.Sdate + "', Edate: '"
+                     + employee.Edate + "', Level: '" + employee.Level + "', Asalary: '" + employee.Asalary +
+                     "', Agency: '" + employee.Agency + "', Hsalary: '" + employee.Hsalary + "', Institute: '"
+                     + employee.Institute + "', Itype: '" + employee.Itype + "'})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Employee done!")
+
+def create_item(greeter):
+    counter = 0
+    for item in ITEM_list:
+        if(counter != 0):
+            query = ("CREATE (n:Item {iId: " + item.iId + ", Iname: '" +
+                     item.Iname + "', Sprice: " + item.Sprice + "})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Item done!")
+
+def create_oldprice(greeter):
+    counter = 0
+    for oldprice in OLDPRICE_list:
+        if(counter != 0):
+            query = ("MERGE (n:`Old Price` {iId: " + oldprice.iId + ", Sprice: " +
+                     oldprice.Sprice + ", Sdate: '" + oldprice.Sdate + "', Edate: '" + oldprice.Edate + "'})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Old Price done!")
+
+def create_order_item(greeter):
+    counter = 0
+    for order_item in ORDER_ITEM_list:
+        if(counter != 0):
+            query = ("MERGE (n:`Order Item` {oId: " + order_item.oId + ", iId: " +
+                     order_item.iId + ", Sdate: " + order_item.Icount + "})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Order Item done!")
+
+def create_order(greeter):
+    counter = 0
+    for orders in ORDERS_list:
+        if(counter != 0):
+            query = ("CREATE (n: Orders {oId: " + orders.oId + ", sId: " +
+                     orders.sId + ", cId: " + orders.cId + ", Odate: '" + orders.Odate + "', Ddate: '" +
+                     orders.Ddate + "', Amount: " + orders.Amount + "})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Orders done!")
+
+def create_store(greeter):
+    counter = 0
+    for store in STORE_list:
+        if(counter != 0):
+            query = ("CREATE (n: Store {sId: " + store.sId + ", Sname: '" +
+                     store.Sname + "', Street: '" + store.Street + "', City: '" + store.City + "', StateAb: '" +
+                     store.StateAb + "', ZipCode: '" + store.Zipcode + "', Sdate: '" + store.Sdate + "', Telno: '" +
+                     store.Telno + "', URL: '" + store.URL + "'})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Store done!")
+
+def create_vendor(greeter):
+    counter = 0
+    for vendor in VENDOR_list:
+        if(counter != 0):
+            query = ("CREATE (n: Vendor {vId: " + vendor.vId + ", Vname: '" +
+                     vendor.Vname + "', Street: '" + vendor.Street + "', City: '" + vendor.City
+                      + "', StateAb: '" + vendor.StateAb + "', ZipCode: '" + vendor.Zipcode + "'})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Vendor done!")
+
+def create_vendor_item(greeter):
+    counter = 0
+    for vendor_item in VENDOR_ITEM_list:
+        if(counter != 0):
+            query = ("CREATE (n:`Vendor Item` {vId: " + vendor_item.vId + ", iId: " +
+                     vendor_item.iId + ", Vprice: " + vendor_item.Vprice + "'})")
+            greeter.driver.execute_query(query)
+        else:
+            counter = counter + 1
+    print("Vendor Item done!")
 def read_operations(fname):
     cwd = os.getcwd()
     os.chdir(cwd)
@@ -221,8 +341,45 @@ def read_operations(fname):
 
     f.close()
 
+
+class DBDriver:
+
+    def __init__(self, uri, user, password):
+        self.driver = GraphDatabase.driver(uri, auth=(user, password))
+
+    def close(self):
+        self.driver.close()
+
+    def print_greeting(self, message):
+        with self.driver.session() as session:
+            greeting = session.execute_write(self._create_and_return_greeting, message)
+            print(greeting)
+
+    @staticmethod
+    def _create_and_return_greeting(tx, message):
+        result = tx.run("MATCH (n:Contract) "
+                        "RETURN n", message=message)
+        return result.single()[0]
+
+
 def main():
-    fname = input("Type name of file without .csv: ")
+    greeter = DBDriver("bolt://54.161.74.30:7687", "neo4j", "decoration-enclosure-coders")
+    greeter.driver.execute_query("MATCH (n) DELETE n")
+    #greeter.driver.execute_query("CREATE (n:`Order Item` {oId: 1, iId: 2, Icount: 3})")
+    #test = greeter.driver.execute_query("MATCH (n:`Order Item`) RETURN n")
+    #print(test)
+
+    fname = input("Press Enter to read Data")
+
+    from neo4j import GraphDatabase
+
+    # URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
+    URI = "bolt://54.161.74.30:7687"
+    AUTH = ("neo4j", "decoration-enclosure-coders")
+
+    with GraphDatabase.driver(URI, auth=AUTH) as driver:
+        driver.verify_connectivity()
+
     read_operations("CONTRACT")
     read_operations("CUSTOMER")
     read_operations("EMPLOYEE")
@@ -233,5 +390,19 @@ def main():
     read_operations("STORE")
     read_operations("VENDOR")
     read_operations("VENDOR_ITEM")
+    print("Data extraction complete.")
+    fname = input("Press Enter to export Data")
 
+    create_contract(greeter)
+    create_customer(greeter)
+    create_employee(greeter)
+    create_item(greeter)
+    #create_oldprice(greeter)
+    #create_order_item(greeter)
+    create_order(greeter)
+    create_store(greeter)
+    create_vendor(greeter)
+    #create_vendor_item(greeter)
+
+    greeter.close()
 main()
