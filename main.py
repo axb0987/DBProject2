@@ -53,15 +53,9 @@ class ORDERS:
         self.Ddate = Ddate
         self.Amount = Amount
 
-#class ORDER_ITEM:
-    #def __init__(self, oId, sId, iId, Icount):
-        #self.oId = oId
-        #self.sId = sId
-        #self.iId = iId
-        #self.Icount = Icount
-
 class ORDER_ITEM:
-    def __init__(self, oId, iId, Icount):
+    def __init__(self, sId, oId, iId, Icount):
+        self.sId = sId
         self.oId = oId
         self.iId = iId
         self.Icount = Icount
@@ -155,7 +149,7 @@ def read_ORDER_ITEM(data):
     for line in data:
         line = line.rstrip()
         lineSplit = line.split(",")
-        readORDER_ITEM = ORDER_ITEM(lineSplit[0], lineSplit[1], lineSplit[2])
+        readORDER_ITEM = ORDER_ITEM(lineSplit[0], lineSplit[1], lineSplit[2], lineSplit[3])
         ORDER_ITEM_list.append(readORDER_ITEM)
 
 def read_ORDERS(data):
@@ -238,24 +232,24 @@ def create_item(greeter):
 
 def create_oldprice(greeter):
     counter = 0
+    #unique_query = ("DROP CONSTRAINT imp_uniq_Old Price_iId]")
+    #greeter.driver.execute_query(unique_query)
     for oldprice in OLDPRICE_list:
         if(counter != 0):
-            query = ("MERGE (n:`Old Price` {iId: " + oldprice.iId + ", Sprice: " +
+            query = ("CREATE (n:`Old Price` {iId: " + oldprice.iId + ", Sprice: " +
                      oldprice.Sprice + ", Sdate: '" + oldprice.Sdate + "', Edate: '" + oldprice.Edate + "'})")
             greeter.driver.execute_query(query)
-        else:
-            counter = counter + 1
+        counter = counter + 1
     print("Old Price done!")
 
 def create_order_item(greeter):
     counter = 0
     for order_item in ORDER_ITEM_list:
         if(counter != 0):
-            query = ("MERGE (n:`Order Item` {oId: " + order_item.oId + ", iId: " +
+            query = ("MERGE (n:`Order Item` {sId: " + order_item.sId + ", oId: " + order_item.oId + ", iId: " +
                      order_item.iId + ", Sdate: " + order_item.Icount + "})")
             greeter.driver.execute_query(query)
-        else:
-            counter = counter + 1
+        counter = counter + 1
     print("Order Item done!")
 
 def create_order(greeter):
@@ -300,10 +294,9 @@ def create_vendor_item(greeter):
     for vendor_item in VENDOR_ITEM_list:
         if(counter != 0):
             query = ("CREATE (n:`Vendor Item` {vId: " + vendor_item.vId + ", iId: " +
-                     vendor_item.iId + ", Vprice: " + vendor_item.Vprice + "'})")
+                     vendor_item.iId + ", Vprice: " + vendor_item.Vprice + "})")
             greeter.driver.execute_query(query)
-        else:
-            counter = counter + 1
+        counter = counter + 1
     print("Vendor Item done!")
 def read_operations(fname):
     cwd = os.getcwd()
@@ -363,7 +356,7 @@ class DBDriver:
 
 
 def main():
-    greeter = DBDriver("bolt://54.161.74.30:7687", "neo4j", "decoration-enclosure-coders")
+    greeter = DBDriver("bolt://44.201.15.215:7687", "neo4j", "envelope-partition-cents")
     greeter.driver.execute_query("MATCH (n) DELETE n")
     #greeter.driver.execute_query("CREATE (n:`Order Item` {oId: 1, iId: 2, Icount: 3})")
     #test = greeter.driver.execute_query("MATCH (n:`Order Item`) RETURN n")
@@ -374,8 +367,8 @@ def main():
     from neo4j import GraphDatabase
 
     # URI examples: "neo4j://localhost", "neo4j+s://xxx.databases.neo4j.io"
-    URI = "bolt://54.161.74.30:7687"
-    AUTH = ("neo4j", "decoration-enclosure-coders")
+    URI = "bolt://44.201.15.215:7687"
+    AUTH = ("neo4j", "envelope-partition-cents")
 
     with GraphDatabase.driver(URI, auth=AUTH) as driver:
         driver.verify_connectivity()
@@ -397,12 +390,12 @@ def main():
     create_customer(greeter)
     create_employee(greeter)
     create_item(greeter)
-    #create_oldprice(greeter)
-    #create_order_item(greeter)
+    create_oldprice(greeter)
+    create_order_item(greeter)
     create_order(greeter)
     create_store(greeter)
     create_vendor(greeter)
-    #create_vendor_item(greeter)
+    create_vendor_item(greeter)
 
     greeter.close()
 main()
