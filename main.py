@@ -70,11 +70,15 @@ class ORDER_ITEM:
 
 
 class EMPLOYEE:
-    def __init__(self, sId, SSN, Ename, Etype, Bdate, Sdate, Edate, Level, Asalary, Agency, Hsalary, Institute, Itype,
-                 Street, City, StateAb, Zipcode):
+    def __init__(self, sId, SSN, Sname, Street, City, StateAb, Zipcode, Etype, Bdate, Sdate, Edate, Level, Asalary, Agency,
+                 Hsalary, Institute, Itype):
         self.sId = sId
         self.SSN = SSN
-        self.Ename = Ename
+        self.Sname = Sname
+        self.Street = Street
+        self.City = City
+        self.StateAb = StateAb
+        self.Zipcode = Zipcode
         self.Etype = Etype
         self.Bdate = Bdate
         self.Sdate = Sdate
@@ -85,10 +89,7 @@ class EMPLOYEE:
         self.Hsalary = Hsalary
         self.Institute = Institute
         self.Itype = Itype
-        self.Street = Street
-        self.City = City
-        self.StateAb = StateAb
-        self.Zipcode = Zipcode
+
 
 
 class CONTRACT:
@@ -249,8 +250,8 @@ def create_employee(greeter, io):
     counter = 0
     for employee in EMPLOYEE_list:
         if (counter != 0):
-            query = ("CREATE (n:Employee {sId: " + employee.sId + ", SSN: " + employee.SSN + ", Ename: '"
-                     + employee.Ename + "', Street: '" + employee.Street + "', City: '" + employee.City +
+            query = ("CREATE (n:Employee {sId: " + employee.sId + ", SSN: " + employee.SSN + ", Sname: '"
+                     + employee.Sname + "', Street: '" + employee.Street + "', City: '" + employee.City +
                      "', StateAb: '" + employee.StateAb + "', Zipcode: '" + employee.Zipcode + "', Etype: '" +
                      employee.Etype + "', Bdate: '" + employee.Bdate + "', Sdate: '" + employee.Sdate + "', Edate: '"
                      + employee.Edate + "', Level: '" + employee.Level + "', Asalary: '" + employee.Asalary +
@@ -480,6 +481,34 @@ def query_vi(greeter):
     print_query(match[0])
 
 
+def query_v(greeter):
+    query = ("MATCH path = (c:Customer {Cname: 'Abdur Rahman'})-[*4]-(other:Customer) " +
+             "RETURN DISTINCT other.Cname AS CustomerName " +
+             "ORDER BY other.Cname ASC " +
+             "LIMIT 6")
+    match = greeter.driver.execute_query(query)
+    print("Query v:")
+    print_query(match[0])
+
+
+def query_vii(greeter):
+    query = ("MATCH path = shortestPath((a:Item {Iname: 'Clover Sprouts'})-[*..5]-(b:Item {Iname: 'Mung Sprouts'})) " +
+             "RETURN path")
+    match = greeter.driver.execute_query(query)
+    print("Query vii:")
+    print_query(match[0])
+
+
+#Q8) Find the item name and its total purchase count for the most bought item of the Store
+def query_x(greeter):
+    query = ("MATCH (e:Employee) " +
+             "WHERE e.Bdate = e.Sdate " +
+             "RETURN e.Sname, e.Street, e.Bdate")
+    match = greeter.driver.execute_query(query)
+    print("Query iv:")
+    print_query(match[0])
+
+
 
 def read_operations(fname):
     cwd = os.getcwd()
@@ -527,8 +556,8 @@ class DBDriver:
 
 
 def main():
-    URI = "bolt://44.201.15.215:7687"
-    AUTH = ("neo4j", "envelope-partition-cents")
+    URI = "bolt://44.211.128.129:7687"
+    AUTH = ("neo4j", "mittens-matches-nylon")
 
     greeter = DBDriver(URI, AUTH)
     #greeter.driver.execute_query("MATCH (n) DETACH DELETE n")
@@ -579,8 +608,8 @@ def main():
     query_i(greeter)
     query_ii(greeter)
     query_iii(greeter)
-    query_iv(greeter)
     query_v(greeter)
+    query_vii(greeter)
 
 
     greeter.close()
